@@ -97,6 +97,10 @@
          rel="noreferrer"
          target="_blank">PiggyDiggy</a> from GitHub
     </p>
+    <p class="footer-info">And  <a class="theLink"
+                                   href="https://github.com/PiggyDiggy/2048"
+                                   rel="noreferrer"
+                                   target="_blank">The Coding Train</a></p>
     <p class="footer-info"> Edited and re-created by Vishal Madhav </p>
   </footer>
 
@@ -112,7 +116,7 @@
     >
 
       <p class="info">Thank you!</p>
-      <p class="info">Your data has been submitted and is stored down below</p>
+      <p class="info">Your data for the scoreboard has been submitted and can be seen down below. </p>
       <button v-scroll class="theBtn" @click="openScoreModal = false">Close</button>
     </div>
   </Transition>
