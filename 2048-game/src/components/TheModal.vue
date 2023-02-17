@@ -59,12 +59,12 @@ export default {
 
 .modal__button {
   width: 200px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 500;
   color: #fff;
   cursor: pointer;
   margin: 20px;
-  height: 60px;
+  height: 65px;
   text-align: center;
   border: none;
   background-size: 300% 100%;
@@ -129,10 +129,10 @@ export default {
     font-size: 16px;
   }
 }
-
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 600px)
+{
   .modal__text {
-    font-size: 50px;
+    font-size: 60px;
 
   }
 
@@ -142,16 +142,26 @@ export default {
   }
 }
 
-@media screen and (max-width: 400px) {
+@media screen and (max-width: 500px) {
   .modal__text {
-    font-size: 45px;
-
+    font-size: 50px;
 
   }
 
   .modal__button {
+    width: 140px;
+    font-size: 10px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .modal__text {
+    font-size: 40px;
+  }
+
+  .modal__button {
     width: 130px;
-    font-size: 12px;
+    font-size: 11px;
 
 
   }
@@ -160,34 +170,28 @@ export default {
 @media screen and (max-width: 320px) {
 
   .modal__text {
-    font-size: 36px;
+    font-size: 35px;
 
   }
 
   .modal__button {
     width: 110px;
-    font-size: 11px;
-
-
   }
 }
 
 @media screen and (max-width: 280px) {
 
   .modal__text {
-    font-size: 36px;
-
+    font-size: 32px;
   }
 
   .modal__button {
     width: 105px;
     height: 50px;
-    font-size: 12px;
+    font-size: 9px;
   }
 
   .modal-buttons {
-    z-index: 20;
-    display: flex;
     gap: 1px;
   }
 }

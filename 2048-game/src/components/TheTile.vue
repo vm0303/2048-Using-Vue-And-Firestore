@@ -86,7 +86,7 @@ export default {
 }
 
 .tile-enter-active.new {
-  transition: transform 0.4s 0.08s cubic-bezier(0.175, 0.885, 0.32, 1.2);
+  transition: transform 0.3s 0.05s cubic-bezier(0.175, 0.885, 0.32, 1.2);
 }
 
 .restarting .tile-enter-active.new {

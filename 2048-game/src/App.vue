@@ -13,9 +13,9 @@ window.addEventListener("keydown", function (e) {
   }
 }, false);
 
-document.addEventListener('touchmove', function (e) {
-  e.preventDefault();
-}, {passive: false});
+
+
+
 
 
 import TheInfo from "@/components/TheInfo.vue"
@@ -48,7 +48,6 @@ main {
   height: 100%;
   justify-content: center;
   align-items: center;
-
 }
 
 body {

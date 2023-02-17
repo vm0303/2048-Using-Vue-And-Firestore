@@ -1,4 +1,4 @@
-const generateCell = (index) => ({
+const generateTiles = (index) => ({
     value: 0,
     changed: false,
     moved: false,
@@ -14,5 +14,5 @@ const GRID = [
 
 export const generateEmptyGrid = () => {
     let index = 0;
-    return GRID.map((row) => row.map(() => generateCell(index++)));
+    return GRID.map((row) => row.map(() => generateTiles(index++)));
 };

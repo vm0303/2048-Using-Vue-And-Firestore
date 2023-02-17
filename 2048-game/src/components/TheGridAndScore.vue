@@ -1,14 +1,14 @@
 <template>
   <div class="game-container">
     <div class="console-container">
-      <div class="score-boxes">
-        <div v-ripple="30" class="score box">
-          <div> Score</div>
-          <div> {{ controller.score }}</div>
+      <div class="theScore-boxes">
+        <div v-ripple="30" class="theScore box">
+          <div> Score </div>
+          <div> {{ controller.theScore }}</div>
         </div>
-        <div v-ripple="30" class="score box">
+        <div v-ripple="30" class="theScore box">
           <div> Best Score</div>
-          <div> {{ getMaxScore() }}</div>
+          <div> {{ getMaxScore()}}</div>
         </div>
       </div>
 
@@ -32,29 +32,28 @@
         ></div>
       </div>
     </div>
-    <div :class="{ restarting }" class="grid">
-      <TheTile v-for="tile in tiles" :key="tile.id" :tile="tile"/>
+    <div :class="{ restarting }" class="grid" ref="grid">
+      <TheTile v-for="tile in tileCells" :key="tile.id" :tile="tile"/>
     </div>
-
-    <TheModal
-        :show="gameOver"
-        alt="Report Your Score"
-        text="Game Over!"
-        @alt="close_Lose"
-        @restart="restart"
-    />
-    <TheModal
-        :show="hasWon"
-        alt="Report Your Score"
-        text="You Win!"
-        @alt="close_Win"
-        @restart="restart"
-    />
-
   </div>
+
+  <TheModal
+      :show="gameOver"
+      alt="Report Your Score"
+      text="Game Over!"
+      @alt="close_Lose"
+      @restart="restart"
+  />
+  <TheModal
+      :show="hasWon"
+      alt="Continue Playing Or Report Your Score"
+      text="You Win!"
+      @alt="close_Win"
+      @restart="restart"
+  />
   <br>
   <Transition name="fadeFormAndScores">
-    <div v-show="showFormAndScores" class="score-form">
+    <div v-show="showFormAndScores" class="theScore-form">
       <h2 class="sub-title">Score Form</h2>
       <div class="info">
         <p> Enter your first and last name in the text boxes below to report your score, and see where you rank in the
@@ -64,11 +63,11 @@
       </div>
       <form id="data" @submit.prevent="dataSubmit">
         <div class="input-box">
-          <input id="first-name" v-model="first_name" required type="text"/>
+          <input id="first_name" v-model="first_name" required type="text"/>
           <label  for="">Enter Your First Name Here</label>
         </div>
         <div class="input-box">
-          <input id="last-name" v-model="last_name" required type="text"/>
+          <input id="last_name" v-model="last_name" required type="text"/>
           <label for="">Enter Your Last Name Here</label>
         </div>
         <button v-ripple="35" class="submit-button" type="submit" value="Submit" @click=showOrHideModal>Submit</button>
@@ -84,7 +83,7 @@
       <p v-for="user in scores" v-bind:key="user.id" v-ripple="120" class="info card gradient">
         Name: {{ user.first_name }} {{ user.last_name }}
         <br>
-        Score: {{ user.score }}
+        Score: {{ user.theScore }}
       </p>
     </div>
   </div>
@@ -101,20 +100,22 @@
                                    href="https://github.com/PiggyDiggy/2048"
                                    rel="noreferrer"
                                    target="_blank">The Coding Train</a></p>
-    <p class="footer-info"> Edited and re-created by Vishal Madhav </p>
+    <p class="footer-info"> Edited and re-created by <a class="theLink"
+                                                        href="#"
+                                                        rel="noreferrer"
+                                                        target="_blank">Vishal Madhav</a>  </p>
   </footer>
 
   <Transition name="fade">
     <div v-if="openScoreModal"
-         class="score-modal-overlay"
+         class="theScore-modal-overlay"
     ></div>
   </Transition>
   <Transition name="slide-fade">
     <div v-if="openScoreModal"
-         class="score-modal"
+         class="theScore-modal"
          role="dialog"
     >
-
       <p class="info">Thank you!</p>
       <p class="info">Your data for the scoreboard has been submitted and can be seen down below. </p>
       <button v-scroll class="theBtn" @click="openScoreModal = false">Close</button>
@@ -130,6 +131,9 @@ import TheTile from "./TheTile.vue";
 import TheModal from "@/components/TheModal.vue";
 import db from '../firebase/firebaseInit'
 
+
+
+
 export default {
   components: {
     TheModal,
@@ -138,13 +142,12 @@ export default {
 
   data() {
     const controller = new BoardGameControls();
-    new TouchMobileEvents(document);
     return {
       keys: {
-        ArrowUp: controller.keyUp,
-        ArrowDown: controller.keyDown,
-        ArrowLeft: controller.keyLeft,
-        ArrowRight: controller.keyRight,
+        ArrowUp: controller.KeyArrowUp,
+        ArrowDown: controller.keyArrowDown,
+        ArrowLeft: controller.keyArrowLeft,
+        ArrowRight: controller.keyArrowRight,
       },
       controller,
       gameOver: false,
@@ -163,7 +166,7 @@ export default {
       this.gameOver = false;
       this.hasWon = false;
       this.restarting = true;
-      this.controller.restart();
+      this.controller.restartGame();
       this.history = [];
       Storage.hasWon = false;
       this.showFormAndScores = false;
@@ -182,8 +185,8 @@ export default {
     copyState() {
       return {
         grid: JSON.parse(JSON.stringify(this.grid)),
-        tiles: JSON.parse(JSON.stringify(this.tiles)),
-        score: this.controller.score,
+        tileCells: JSON.parse(JSON.stringify(this.tileCells)),
+        theScore: this.controller.theScore,
       };
     },
     updateHistory(state) {
@@ -192,15 +195,15 @@ export default {
     },
     loadFromStorage() {
       const lastState = Storage.lastState;
-      if (lastState && lastState.tiles.length) {
-        this.controller.replaceState(lastState);
+      if (lastState && lastState.tileCells.length) {
+        this.controller.replaceGridState(lastState);
       } else {
         this.controller.fill();
       }
       this.history = Storage.history;
     },
     getMaxScore() {
-      return Math.max(Storage.maxScore, this.controller.score);
+      return Math.max(Storage.maxScore, this.controller.theScore);
     },
 
     swipe({direction}) {
@@ -211,34 +214,34 @@ export default {
       if (!this.keys[key]) return;
       const lastState = this.copyState();
       this.restarting = false;
-      this.controller.clear();
+      this.controller.clearTheBoard();
       this.keys[key]();
 
       if (!this.flatGrid.some((cell) => cell.moved)) {
-        return this.controller.restoreTiles(lastState);
+        return this.controller.restoreTheTiles(lastState);
       }
 
       this.controller.fill(1);
       this.updateHistory(lastState);
 
-      if (this.controller.hasLost()) {
+      if (this.controller.userLost()) {
         this.gameOver = true;
       }
 
-      if (!Storage.hasWon && this.controller.hasWon()) {
+      if (!Storage.hasWon && this.controller.userWon()) {
         this.hasWon = true;
         Storage.hasWon = true;
       }
     },
     highScore() {
-      db.collection('userScores').orderBy('score', "desc").onSnapshot((querySnapshot => {
+      db.collection('userScores').orderBy('theScore', "desc").onSnapshot((querySnapshot => {
         this.scores = [];
         querySnapshot.forEach(doc => {
           const data = {
             'id': doc.id,
             'first_name': doc.data().first_name,
             'last_name': doc.data().last_name,
-            'score': doc.data().score
+            'theScore': doc.data().theScore
           }
           this.scores.push(data)
         })
@@ -249,15 +252,23 @@ export default {
       db.collection('userScores').add({
         first_name: this.first_name,
         last_name: this.last_name,
-        score: this.controller.score
+        theScore: this.controller.theScore
       })
 
     },
     showOrHideModal() {
-      this.showFormAndScores = false;
-      let value = document.getElementById("first-name").value;
-      let value2 = document.getElementById("last-name").value;
-      this.openScoreModal = !(value == null || value === '' || value2 == null || value2 === '');
+      let value = document.getElementById("first_name").value;
+      let value2 = document.getElementById("last_name").value;
+      if(value == null || value === '' || value2 == null || value2 === '')
+      {
+        this.openScoreModal = false;
+        this.showFormAndScores= true;
+      }
+      else
+      {
+        this.openScoreModal = true;
+        this.showFormAndScores= false;
+      }
     }
   },
   watch: {
@@ -267,8 +278,8 @@ export default {
         Storage.history = this.history;
         Storage.lastState = {
           grid: this.grid,
-          tiles: this.tiles,
-          score: this.controller.score,
+          tileCells: this.tileCells,
+          theScore: this.controller.theScore,
           nextId: this.controller.nextId,
         };
       },
@@ -282,8 +293,8 @@ export default {
     flatGrid() {
       return this.grid.flat();
     },
-    tiles() {
-      return this.controller.tiles;
+    tileCells() {
+      return this.controller.tileCells;
     },
   },
   created() {
@@ -291,21 +302,29 @@ export default {
     document.addEventListener("keydown", ({key}) => this.move(key));
     document.addEventListener("custom:swipe", ({detail}) => this.swipe(detail));
     this.highScore();
-    if (window.onload) {
-      this.controller.restart();
+      this.controller.restartGame();
       this.history = [];
       this.restarting = true;
       Storage.hasWon = false;
       this.gameOver = false;
       this.hasWon = false;
-    }
+
   },
+  mounted() {
+    const gridRef = this.$refs.grid;
+    new TouchMobileEvents(gridRef);
+    gridRef.addEventListener("custom:swipe", ({ detail }) => this.swipe(detail));
+  }
+
 };
+
+
 </script>
 
 <style>
 .game-container {
   position: relative;
+
 }
 
 .console-container {
@@ -323,9 +342,7 @@ export default {
   align-items: center;
 }
 
-.score-boxes {
-  display: flex;
-}
+
 
 .theBtn {
   border: none;
@@ -357,6 +374,7 @@ export default {
   width: 450px;
   border-radius: 8px;
   border: 10px solid transparent;
+
 }
 
 .game-grid-layout {
@@ -376,17 +394,17 @@ export default {
 .grid-layout__cell {
   height: 110px;
   width: 110px;
-  background-image: linear-gradient(to right, #29323c, #5f6d7d);
+  background-image: linear-gradient(to right, #1e252c, #454f5a);
   border: 5px solid black;
   border-radius: 12px;
 }
 
-.score-boxes {
+.theScore-boxes {
   display: flex;
   gap: 10px;
 }
 
-.score {
+.theScore {
   background: linear-gradient(to right, #29323c, #5f6d7d, #707e8b, #34475c);
   color: white;
   flex-direction: column;
@@ -400,11 +418,11 @@ export default {
   moz-transition: all .4s ease-in-out;
 }
 
-.score div {
+.theScore div {
   font-size: 1.2rem;
 }
 
-.score div:first-child {
+.theScore div:first-child {
   text-align: center;
   text-transform: uppercase;
   font-weight: 600;
@@ -412,7 +430,7 @@ export default {
   line-height: 14px;
 }
 
-.score-form {
+.theScore-form {
   width: 420px;
   display: inline-block;
   margin: 5px;
@@ -547,7 +565,7 @@ export default {
   opacity: 0;
 }
 
-.score-modal {
+.theScore-modal {
   position: absolute;
   position: fixed;
   top: 0;
@@ -562,14 +580,14 @@ export default {
   padding: 2rem;
   border-radius: 1rem;
   box-shadow: 0 5px 5px rgba(0, 0, 0, 0.2);
-  background-image: linear-gradient(to right, rgba(43, 61, 74, 0.91), rgba(73, 120, 144, 0.89));
+  background-image: linear-gradient(to right, rgba(43, 61, 74, 0.98), rgba(73, 120, 144, 0.98));
   color: #FFFFFF;
   z-index: 999;
   transform: none;
 }
 
 
-.score-modal-overlay {
+.theScore-modal-overlay {
   content: '';
   position: absolute;
   position: fixed;
@@ -618,6 +636,11 @@ footer {
 .theLink {
   color: white;
 }
+.high-score-board
+{
+  padding: 3px;
+  margin: 3px;
+}
 
 
 @media (hover: hover) {
@@ -637,7 +660,7 @@ footer {
     moz-transition: all .4s ease-in-out;
   }
 
-  .score:hover {
+  .theScore:hover {
     background-position: 100% 0;
     -o-transition: all .4s ease-in-out;
     -webkit-transition: all .4s ease-in-out;
@@ -663,7 +686,7 @@ footer {
 }
 
 @media screen and (max-width: 500px) {
-  .score-form {
+  .theScore-form {
     width: 350px;
   }
 
@@ -702,18 +725,18 @@ footer {
     margin-bottom: 12px;
   }
 
-  .score-boxes {
+  .theScore-boxes {
     display: flex;
     gap: 10px;
   }
 
-  .score {
+  .theScore {
     color: white;
     padding: 6px 14px;
     text-align: center;
   }
 
-  .score div:first-child {
+  .theScore div:first-child {
     text-align: center;
     text-transform: uppercase;
     font-weight: 600;
@@ -721,13 +744,13 @@ footer {
     line-height: 12px;
   }
 
-  .score div {
+  .theScore div {
     font-size: 1.2rem;
   }
 }
 
 @media screen and (max-width: 430px) {
-  .score-form {
+  .theScore-form {
     width: 320px;
   }
 
@@ -795,11 +818,11 @@ footer {
     margin-bottom: 8px;
   }
 
-  .score div {
+  .theScore div {
     font-size: 0.9rem;
   }
 
-  .score div:first-child {
+  .theScore div:first-child {
     text-align: center;
     text-transform: uppercase;
     font-weight: 600;
@@ -807,7 +830,7 @@ footer {
     line-height: 14px;
   }
 
-  .score {
+  .theScore {
     background-image: linear-gradient(to right, #29323c, #5f6d7d, #707e8b, #34475c);
     color: white;
     flex-direction: column;
@@ -817,7 +840,7 @@ footer {
 
   }
 
-  .score-form {
+  .theScore-form {
     width: 320px;
   }
 
@@ -827,7 +850,7 @@ footer {
     top: -20px;
   }
 
-  .score-modal {
+  .theScore-modal {
 
     max-width: 20em;
   }
@@ -840,7 +863,7 @@ footer {
   }
 }
   @media screen and (max-width: 320px) {
-  .score-form {
+  .theScore-form {
     width: 235px;
 
   }
@@ -849,7 +872,7 @@ footer {
     font-size: 12px;
   }
 
-  .score-modal {
+  .theScore-modal {
     max-width: 15em;
   }
 
@@ -902,11 +925,11 @@ footer {
     margin-bottom: 8px;
   }
 
-  .score div {
+  .theScore div {
     font-size: 0.9rem;
   }
 
-  .score div:first-child {
+  .theScore div:first-child {
     text-align: center;
     text-transform: uppercase;
     font-weight: 600;
@@ -914,7 +937,7 @@ footer {
     line-height: 14px;
   }
 
-  .score {
+  .theScore {
     background-image: linear-gradient(to right, #29323c, #5f6d7d, #707e8b, #34475c);
     color: white;
     flex-direction: column;
@@ -926,11 +949,11 @@ footer {
 }
 
 @media screen and (max-width: 280px) {
-  .score-modal {
+  .theScore-modal {
 
     max-width: 14em;
   }
-  .score-form {
+  .theScore-form {
     width: 200px;
   }
   .footer-info {
@@ -975,11 +998,11 @@ footer {
     margin-bottom: 3px;
   }
 
-  .score div {
+  .theScore div {
     font-size: 0.8rem;
   }
 
-  .score div:first-child {
+  .theScore div:first-child {
     text-align: center;
     text-transform: uppercase;
     font-weight: 600;
@@ -987,7 +1010,7 @@ footer {
     line-height: 12px;
   }
 
-  .score {
+  .theScore {
     background-image: linear-gradient(to right, #29323c, #5f6d7d, #707e8b, #34475c);
     color: white;
     flex-direction: column;
@@ -1000,7 +1023,7 @@ footer {
   .theBtn {
 
     width: 100px;
-    height: 30px;
+    height: 31px;
     font-size: 12px;
 
   }

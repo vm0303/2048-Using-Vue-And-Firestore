@@ -2,112 +2,112 @@ import {generateEmptyGrid} from "./BoardCreator";
 
 export class BoardGameControls {
     constructor() {
-        this._grid = generateEmptyGrid();
+        this.game_grid = generateEmptyGrid();
         this.nextId = 0;
-        this.score = 0;
-        this.tiles = [];
+        this.theScore = 0;
+        this.tileCells = [];
     }
 
     get grid() {
-        return this._grid;
+        return this.game_grid;
     }
 
     set grid(newGrid) {
-        this._grid = newGrid;
+        this.game_grid = newGrid;
     }
 
     get availableCells() {
-        return this.flatGrid.filter((cell) => !cell.value);
+        return this.aLevelGrid.filter((cell) => !cell.value);
     }
 
-    get flatGrid() {
-        return this._grid.flat();
+    get aLevelGrid() {
+        return this.game_grid.flat();
     }
 
     fill(count = 2) {
-        for (let i = 0; i < count; i++) this.createRandomCell();
+        for (let i = 0; i < count; i++) this.generateRandomCell();
     }
 
-    createRandomCell() {
-        const index = this.choice(this.availableCells).index;
-        const cell = this.flatGrid[index];
+    generateRandomCell() {
+        const index = this.options(this.availableCells).index;
+        const cell = this.aLevelGrid[index];
         const value = Math.random() < 0.9 ? 2 : 4;
         cell.value = value;
-        this.addTile(value, index);
+        this.insertATile(value, index);
     }
 
-    choice(arr) {
+    options(arr) {
         return arr[Math.floor(Math.random() * arr.length)];
     }
 
-    addTile(value, index) {
+    insertATile(value, index) {
         const tile = {value, index, delete: false, isNew: true, id: this.nextId++};
-        this.tiles.push(tile);
+        this.tileCells.push(tile);
     }
 
-    getCol(colId) {
-        return this._grid.map((row) => row[colId]);
+    getTheCol(colId) {
+        return this.game_grid.map((row) => row[colId]);
     }
 
-    setCol(colId, col) {
-        this._grid.forEach((row, id) => {
+    setTheCol(colId, col) {
+        this.game_grid.forEach((row, id) => {
             row[colId] = col[id];
         });
     }
 
-    getRow(rowId) {
-        return [...this._grid[rowId]];
+    getTheRow(rowId) {
+        return [...this.game_grid[rowId]];
     }
 
-    setRow(rowId, row) {
-        this._grid[rowId] = row;
+    setTheRow(rowId, row) {
+        this.game_grid[rowId] = row;
     }
 
-    keyUp = () => {
-        for (const colId in this._grid[0]) {
+    KeyArrowUp = () => {
+        for (const colId in this.game_grid[0]) {
             this.moveUpAtCol(colId);
         }
     };
 
-    keyDown = () => {
-        for (const colId in this._grid[0]) {
+    keyArrowDown = () => {
+        for (const colId in this.game_grid[0]) {
             this.moveDownAtCol(colId);
         }
     };
 
-    keyLeft = () => {
-        for (const rowId in this._grid) {
+    keyArrowLeft = () => {
+        for (const rowId in this.game_grid) {
             this.moveLeftAtRow(rowId);
         }
     };
 
-    keyRight = () => {
-        for (const rowId in this._grid) {
+    keyArrowRight = () => {
+        for (const rowId in this.game_grid) {
             this.moveRightAtRow(rowId);
         }
     };
 
     moveUpAtCol(colId) {
-        const col = this.getCol(colId);
-        this.setCol(colId, this.moveLine(col));
+        const col = this.getTheCol(colId);
+        this.setTheCol(colId, this.moveTheLine(col));
     }
 
     moveDownAtCol(colId) {
-        const col = this.getCol(colId).reverse();
-        this.setCol(colId, this.moveLine(col).reverse());
+        const col = this.getTheCol(colId).reverse();
+        this.setTheCol(colId, this.moveTheLine(col).reverse());
     }
 
     moveLeftAtRow(rowId) {
-        const row = this.getRow(rowId);
-        this.setRow(rowId, this.moveLine(row));
+        const row = this.getTheRow(rowId);
+        this.setTheRow(rowId, this.moveTheLine(row));
     }
 
     moveRightAtRow(rowId) {
-        const row = this.getRow(rowId).reverse();
-        this.setRow(rowId, this.moveLine(row).reverse());
+        const row = this.getTheRow(rowId).reverse();
+        this.setTheRow(rowId, this.moveTheLine(row).reverse());
     }
 
-    moveLine(line) {
+    moveTheLine(line) {
         for (let i = 1; i < line.length; i++) {
             let moveToId = -1;
             if (line[i].value === 0) continue;
@@ -123,10 +123,10 @@ export class BoardGameControls {
             if (!~moveToId) continue;
 
             const cell = line[moveToId];
-            const tile = this.tiles.find((tile) => tile.index === line[i].index);
+            const tile = this.tileCells.find((tile) => tile.index === line[i].index);
             if (cell.value) {
                 cell.changed = true;
-                this.mergeTiles(cell, tile);
+                this.mergeTheTiles(cell, tile);
             }
             cell.value += line[i].value;
             cell.moved = true;
@@ -136,52 +136,52 @@ export class BoardGameControls {
         return line;
     }
 
-    mergeTiles(cellTo, tileFrom) {
-        const tileTo = this.tiles.find((tile) => tile.index === cellTo.index);
+    mergeTheTiles(cellTo, tileFrom) {
+        const tileTo = this.tileCells.find((tile) => tile.index === cellTo.index);
         tileTo.delete = true;
         tileFrom.delete = true;
-        this.addTile(cellTo.value * 2, cellTo.index);
-        this.score += cellTo.value * 2;
+        this.insertATile(cellTo.value * 2, cellTo.index);
+        this.theScore += cellTo.value * 2;
     }
 
-    clear() {
-        for (const cell of this.flatGrid) {
+    clearTheBoard() {
+        for (const cell of this.aLevelGrid) {
             cell.changed = false;
             cell.moved = false;
         }
-        this.tiles = this.tiles.filter((tile) => !tile.delete);
-        this.tiles.forEach((tile) => (tile.isNew = false));
+        this.tileCells = this.tileCells.filter((tile) => !tile.delete);
+        this.tileCells.forEach((tile) => (tile.isNew = false));
     }
 
-    restart() {
+    restartGame() {
         this.nextId = 0;
-        this.tiles = [];
-        this._grid = generateEmptyGrid();
+        this.tileCells = [];
+        this.game_grid = generateEmptyGrid();
         setTimeout(() => {
             this.fill();
         }, 0);
-        this.score = 0;
+        this.theScore = 0;
     }
 
-    replaceState({grid, tiles, score, nextId}) {
-        this._grid = grid;
-        this.tiles = tiles;
-        this.score = score;
+    replaceGridState({grid, tileCells, theScore, nextId}) {
+        this.game_grid = grid;
+        this.tileCells = tileCells;
+        this.theScore = theScore;
         this.nextId = nextId ?? this.nextId;
     }
 
-    restoreTiles(state) {
-        this.tiles = state.tiles;
+    restoreTheTiles(state) {
+        this.tileCells = state.tileCells;
     }
 
-    hasLost() {
+    userLost() {
         if (this.availableCells.length) return false;
-        for (let i = 0; i < this._grid.length; i++) {
-            for (let j = 0; j < this._grid.length; j++) {
-                const curValue = this._grid[i][j].value;
+        for (let i = 0; i < this.game_grid.length; i++) {
+            for (let j = 0; j < this.game_grid.length; j++) {
+                const curValue = this.game_grid[i][j].value;
                 if (
-                    curValue === this._grid[i + 1]?.[j]?.value ||
-                    curValue === this._grid[i]?.[j + 1]?.value
+                    curValue === this.game_grid[i + 1]?.[j]?.value ||
+                    curValue === this.game_grid[i]?.[j + 1]?.value
                 )
                     return false;
             }
@@ -189,7 +189,7 @@ export class BoardGameControls {
         return true;
     }
 
-    hasWon() {
-        return this.tiles.some((tile) => tile.value === 2048);
+    userWon() {
+        return this.tileCells.some((tile) => tile.value === 2048);
     }
 }
